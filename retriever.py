@@ -1,9 +1,5 @@
 """
 Retriever
-检索器
-
-This module retrieves relevant documents from the vector database.
-本模块从向量数据库中检索相关文档。
 """
 
 from typing import List, Optional, Dict, Tuple
@@ -17,13 +13,12 @@ from logger_config import setup_logger, log_retrieval, log_error
 logger = setup_logger(__name__)
 
 # ============================================================================
-# Retriever Class / 检索器类
+# Retriever Class
 # ============================================================================
 
 class Retriever:
     """
     Retrieve relevant documents from vector database
-    从向量数据库检索相关文档
     """
     
     def __init__(
@@ -34,12 +29,11 @@ class Retriever:
     ):
         """
         Initialize retriever
-        初始化检索器
         
         Args:
-            vector_store: Vector store instance / 向量存储实例
-            llm_client: LLM client for generating embeddings / 用于生成嵌入的LLM客户端
-            top_k: Number of documents to retrieve / 要检索的文档数量
+            vector_store: Vector store instance
+            llm_client: LLM client for generating embeddings 
+            top_k: Number of documents to retrieve
         """
         self.vector_store = vector_store
         self.llm_client = llm_client
@@ -55,32 +49,31 @@ class Retriever:
     ) -> List[Tuple[Document, float]]:
         """
         Retrieve relevant documents for a query
-        为查询检索相关文档
         
         Args:
-            query: User query text / 用户查询文本
-            top_k: Override default top_k / 覆盖默认top_k
-            filter_dict: Optional metadata filters / 可选的元数据过滤器
+            query: User query text
+            top_k: Override default top_k 
+            filter_dict: Optional metadata filters
             
         Returns:
-            List of (Document, similarity_score) tuples / (Document, 相似度分数)元组列表
+            List of (Document, similarity_score) tuples
         """
         start_time = time.time()
         k = top_k or self.top_k
         
         try:
-            # Generate query embedding / 生成查询嵌入
+            # Generate query embedding
             logger.debug(f"Generating embedding for query: '{query[:50]}...'")
             query_vector = self.llm_client.get_embedding(query)
             
-            # Search vector store / 搜索向量存储
+            # Search vector store
             results = self.vector_store.search(
                 query_vector=query_vector,
                 top_k=k,
                 filter_dict=filter_dict
             )
             
-            # Log retrieval / 记录检索
+            # Log retrieval
             duration = time.time() - start_time
             log_retrieval(logger, query, len(results), duration)
             
@@ -101,12 +94,12 @@ class Retriever:
         检索文档但不包含分数
         
         Args:
-            query: User query text / 用户查询文本
-            top_k: Override default top_k / 覆盖默认top_k
-            filter_dict: Optional metadata filters / 可选的元数据过滤器
+            query: User query text
+            top_k: Override default top_k 
+            filter_dict: Optional metadata filters
             
         Returns:
-            List of Document objects / Document对象列表
+            List of Document objects
         """
         results = self.retrieve(query, top_k, filter_dict)
         return [doc for doc, score in results]
@@ -119,15 +112,14 @@ class Retriever:
     ) -> List[Tuple[Document, float]]:
         """
         Retrieve documents filtered by category
-        检索按类别过滤的文档
         
         Args:
-            query: User query text / 用户查询文本
-            category: Category to filter by / 要过滤的类别
-            top_k: Override default top_k / 覆盖默认top_k
+            query: User query tex
+            category: Category to filter by
+            top_k: Override default top_k
             
         Returns:
-            List of (Document, similarity_score) tuples / (Document, 相似度分数)元组列表
+            List of (Document, similarity_score) tuples
         """
         filter_dict = {"category": category}
         return self.retrieve(query, top_k, filter_dict)
@@ -135,10 +127,10 @@ class Retriever:
     def get_retrieval_stats(self) -> Dict:
         """
         Get retrieval statistics
-        获取检索统计信息
+
         
         Returns:
-            Dictionary with stats / 包含统计信息的字典
+            Dictionary with stats
         """
         collection_info = self.vector_store.get_collection_info()
         return {
@@ -148,7 +140,7 @@ class Retriever:
         }
 
 # ============================================================================
-# Convenience Functions / 便利函数
+# Convenience Functions
 # ============================================================================
 
 def create_retriever(
@@ -158,20 +150,19 @@ def create_retriever(
 ) -> Retriever:
     """
     Create and return retriever instance
-    创建并返回检索器实例
     
     Args:
-        vector_store: Vector store instance / 向量存储实例
-        llm_client: LLM client instance / LLM客户端实例
-        **kwargs: Additional arguments / 额外参数
+        vector_store: Vector store instance
+        llm_client: LLM client instance
+        **kwargs: Additional arguments
         
     Returns:
-        Retriever instance / 检索器实例
+        Retriever instance
     """
     return Retriever(vector_store, llm_client, **kwargs)
 
 # ============================================================================
-# Example Usage / 使用示例
+# Example Usage
 # ============================================================================
 
 if __name__ == "__main__":
@@ -179,12 +170,12 @@ if __name__ == "__main__":
     from llm_client import create_llm_client
     
     try:
-        # Initialize components / 初始化组件
+        # Initialize components
         vector_store = create_vector_store()
         llm_client = create_llm_client()
         retriever = create_retriever(vector_store, llm_client, top_k=3)
         
-        # Test retrieval / 测试检索
+        # Test retrieval
         query = "What is the refund policy?"
         results = retriever.retrieve(query)
         
@@ -196,7 +187,7 @@ if __name__ == "__main__":
             print(f"   Content: {doc.content[:100]}...")
             print(f"   Metadata: {doc.metadata}\n")
         
-        # Get stats / 获取统计
+        # Get stats
         stats = retriever.get_retrieval_stats()
         print(f"Retrieval stats: {stats}")
         
