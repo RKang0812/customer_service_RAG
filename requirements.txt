@@ -1,24 +1,21 @@
-# Core dependencies / 核心依赖
+# Core dependencies
 openai>=1.12.0
 qdrant-client>=1.7.0
 python-dotenv>=1.0.0
 pydantic>=2.0.0
 
-# LangChain (minimal usage) / LangChain（最小使用）
+# LangChain (minimal usage)
 langchain>=0.1.0
 langchain-openai>=0.0.5
 
-# Frontend / 前端
+# Frontend
 streamlit>=1.30.0
 
-# Document processing / 文档处理
+# Document processing
 pypdf>=3.17.0
 python-docx>=1.1.0
 
-# Utilities / 工具
+# Utilities
 tiktoken>=0.5.0
 colorlog>=6.8.0
 
-# Optional for better performance / 可选以获得更好性能
-# numpy>=1.24.0
-# pandas>=2.0.0
