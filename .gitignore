@@ -34,5 +34,6 @@ Thumbs.db
 data/uploads/*
 !data/uploads/.gitkeep
 
+
 # Qdrant data / Qdrant数据
 qdrant_storage/
