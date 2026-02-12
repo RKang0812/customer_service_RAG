@@ -1,18 +1,13 @@
 """
 Initialize Qdrant Vector Database
-初始化Qdrant向量数据库
 
 This script creates the Qdrant collection if it doesn't exist.
-此脚本在集合不存在时创建Qdrant集合。
 
-Usage / 使用方法:
-    python scripts/init_vector_db.py
 """
 
 import sys
 from pathlib import Path
 
-# Add parent directory to path / 将父目录添加到路径
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from vector_store import create_vector_store
@@ -23,16 +18,13 @@ logger = setup_logger("init_vector_db")
 def main():
     """
     Initialize vector database
-    初始化向量数据库
     """
     try:
         logger.info("Starting Qdrant initialization...")
         logger.info("=" * 80)
-        
-        # Create vector store (automatically creates collection) / 创建向量存储（自动创建集合）
+
         vector_store = create_vector_store()
-        
-        # Get collection info / 获取集合信息
+
         info = vector_store.get_collection_info()
         
         logger.info("Qdrant initialized successfully!")
