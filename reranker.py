@@ -1,9 +1,7 @@
 """
 Reranker
-重排序器
 
 This module grades document relevance using LLM.
-本模块使用LLM评估文档相关性。
 """
 
 import json
@@ -18,13 +16,12 @@ from logger_config import setup_logger, log_reranking, log_error
 logger = setup_logger(__name__)
 
 # ============================================================================
-# Relevance Score Class / 相关性分数类
+# Relevance Score Class
 # ============================================================================
 
 class RelevanceScore:
     """
     Represents relevance score for a document
-    表示文档的相关性分数
     """
     
     def __init__(
@@ -35,12 +32,11 @@ class RelevanceScore:
     ):
         """
         Initialize relevance score
-        初始化相关性分数
         
         Args:
-            is_relevant: Whether document is relevant / 文档是否相关
-            confidence: Confidence score (0-1) / 置信度分数（0-1）
-            reason: Explanation for the score / 分数的解释
+            is_relevant: Whether document is relevant
+            confidence: Confidence score (0-1)
+            reason: Explanation for the score 
         """
         self.is_relevant = is_relevant
         self.confidence = confidence
@@ -50,13 +46,12 @@ class RelevanceScore:
         return f"RelevanceScore(relevant={self.is_relevant}, confidence={self.confidence:.2f})"
 
 # ============================================================================
-# Reranker Class / 重排序器类
+# Reranker Class
 # ============================================================================
 
 class Reranker:
     """
     Grade document relevance using LLM
-    使用LLM评估文档相关性
     """
     
     def __init__(
@@ -67,12 +62,11 @@ class Reranker:
     ):
         """
         Initialize reranker
-        初始化重排序器
-        
+
         Args:
-            llm_client: LLM client instance / LLM客户端实例
-            threshold: Relevance threshold / 相关性阈值
-            prompt_template: Prompt template for grading / 用于评分的提示词模板
+            llm_client: LLM client instance
+            threshold: Relevance threshold
+            prompt_template: Prompt template for grading
         """
         self.llm_client = llm_client
         self.threshold = threshold
@@ -87,17 +81,16 @@ class Reranker:
     ) -> RelevanceScore:
         """
         Grade relevance of a single document
-        评估单个文档的相关性
         
         Args:
-            query: User query / 用户查询
-            document: Document to grade / 要评估的文档
+            query: User query
+            document: Document to grade
             
         Returns:
-            Relevance score / 相关性分数
+            Relevance score 
         """
         try:
-            # Format prompt / 格式化提示词
+            # Format prompt
             prompt = self.prompt_template.format(
                 question=query,
                 document=document.content
@@ -108,14 +101,14 @@ class Reranker:
                 {"role": "user", "content": prompt}
             ]
             
-            # Get LLM response / 获取LLM响应
+            # Get LLM response
             response = self.llm_client.chat_completion(messages, temperature=0.1)
             
-            # Parse JSON response / 解析JSON响应
-            # Try to extract JSON from response / 尝试从响应中提取JSON
+            # Parse JSON response
+            # Try to extract JSON from response 
             response_text = response.strip()
             
-            # Handle markdown code blocks / 处理markdown代码块
+            # Handle markdown code blocks 
             if "```json" in response_text:
                 response_text = response_text.split("```json")[1].split("```")[0].strip()
             elif "```" in response_text:
@@ -124,12 +117,12 @@ class Reranker:
             try:
                 result = json.loads(response_text)
             except json.JSONDecodeError:
-                # Fallback: try to find JSON-like structure / 后备方案：尝试查找类JSON结构
+                # Fallback: try to find JSON-like structure
                 logger.warning(f"Failed to parse JSON, attempting fallback parsing")
                 
-                # Simple heuristic: look for true/false / 简单启发式：查找true/false
+                # Simple heuristic: look for true/false 
                 is_relevant = "true" in response.lower()
-                confidence = 0.5  # Default confidence / 默认置信度
+                confidence = 0.5  # Default confidence
                 
                 return RelevanceScore(
                     is_relevant=is_relevant,
@@ -137,7 +130,7 @@ class Reranker:
                     reason="Parsed from text response"
                 )
             
-            # Extract values / 提取值
+            # Extract values
             is_relevant = result.get("is_relevant", False)
             confidence = float(result.get("confidence", 0.0))
             reason = result.get("reason", "")
@@ -150,7 +143,7 @@ class Reranker:
         
         except Exception as e:
             log_error(logger, f"grade_document", e)
-            # Return low confidence irrelevant score on error / 出错时返回低置信度不相关分数
+            # Return low confidence irrelevant score on error
             return RelevanceScore(
                 is_relevant=False,
                 confidence=0.0,
@@ -164,14 +157,13 @@ class Reranker:
     ) -> List[Tuple[Document, RelevanceScore]]:
         """
         Grade relevance of multiple documents
-        评估多个文档的相关性
         
         Args:
-            query: User query / 用户查询
-            documents: List of documents to grade / 要评估的文档列表
+            query: User query 
+            documents: List of documents to grade
             
         Returns:
-            List of (Document, RelevanceScore) tuples / (Document, RelevanceScore)元组列表
+            List of (Document, RelevanceScore) tuples 
         """
         start_time = time.time()
         results = []
@@ -185,7 +177,7 @@ class Reranker:
                 f"(confidence: {score.confidence:.2f}) - {doc.content[:50]}..."
             )
         
-        # Log overall statistics / 记录整体统计
+        # Log overall statistics
         relevant_count = sum(1 for _, score in results if score.is_relevant)
         duration = time.time() - start_time
         log_reranking(logger, relevant_count, len(documents))
@@ -200,14 +192,13 @@ class Reranker:
     ) -> List[Tuple[Document, float]]:
         """
         Filter documents by relevance threshold
-        按相关性阈值过滤文档
         
         Args:
-            graded_documents: List of (Document, RelevanceScore) tuples / (Document, RelevanceScore)元组列表
-            threshold: Override default threshold / 覆盖默认阈值
+            graded_documents: List of (Document, RelevanceScore) tuples 
+            threshold: Override default threshold 
             
         Returns:
-            List of (Document, confidence) tuples for relevant docs / 相关文档的(Document, 置信度)元组列表
+            List of (Document, confidence) tuples for relevant docs
         """
         thresh = threshold if threshold is not None else self.threshold
         
@@ -232,39 +223,37 @@ class Reranker:
     ) -> List[Tuple[Document, float]]:
         """
         Grade documents and filter by threshold in one step
-        一步评估文档并按阈值过滤
         
         Args:
-            query: User query / 用户查询
-            documents: List of documents / 文档列表
-            threshold: Override default threshold / 覆盖默认阈值
+            query: User query
+            documents: List of documents
+            threshold: Override default threshold
             
         Returns:
-            List of (Document, confidence) tuples for relevant docs / 相关文档的(Document, 置信度)元组列表
+            List of (Document, confidence) tuples for relevant docs
         """
         graded = self.grade_documents(query, documents)
         return self.filter_by_threshold(graded, threshold)
 
 # ============================================================================
-# Convenience Functions / 便利函数
+# Convenience Functions
 # ============================================================================
 
 def create_reranker(llm_client: LLMClient, **kwargs) -> Reranker:
     """
     Create and return reranker instance
-    创建并返回重排序器实例
-    
+
     Args:
-        llm_client: LLM client instance / LLM客户端实例
-        **kwargs: Additional arguments / 额外参数
+        llm_client: LLM client instance
+        **kwargs: Additional arguments
         
     Returns:
-        Reranker instance / 重排序器实例
+        Reranker instance
     """
     return Reranker(llm_client, **kwargs)
 
 # ============================================================================
-# Example Usage / 使用示例
+# Example Usage
 # ============================================================================
 
 if __name__ == "__main__":
@@ -272,11 +261,11 @@ if __name__ == "__main__":
     from vector_store import Document
     
     try:
-        # Initialize components / 初始化组件
+        # Initialize components
         llm_client = create_llm_client()
         reranker = create_reranker(llm_client, threshold=0.7)
         
-        # Test documents / 测试文档
+        # Test documents
         query = "What is the refund policy?"
         
         test_docs = [
@@ -294,7 +283,7 @@ if __name__ == "__main__":
             )
         ]
         
-        # Grade documents / 评估文档
+        # Grade documents
         print(f"\nQuery: {query}\n")
         graded = reranker.grade_documents(query, test_docs)
         
@@ -304,7 +293,7 @@ if __name__ == "__main__":
             print(f"Reason: {score.reason}")
             print(f"Content: {doc.content[:80]}...\n")
         
-        # Filter by threshold / 按阈值过滤
+        # Filter by threshold
         filtered = reranker.filter_by_threshold(graded)
         print(f"\nFiltered {len(filtered)} relevant documents")
         
