@@ -1,9 +1,7 @@
 """
 Chat Service
-对话服务
-
 This module orchestrates the Corrective RAG pipeline.
-本模块编排矫正式RAG流程。
+
 """
 
 from typing import Dict, List, Optional
@@ -21,13 +19,12 @@ from logger_config import setup_logger, log_error
 logger = setup_logger(__name__)
 
 # ============================================================================
-# Chat Service Class / 对话服务类
+# Chat Service Class
 # ============================================================================
 
 class ChatService:
     """
     Orchestrates the Corrective RAG pipeline
-    编排矫正式RAG流程
     """
     
     def __init__(
@@ -42,16 +39,15 @@ class ChatService:
     ):
         """
         Initialize chat service
-        初始化对话服务
         
         Args:
-            vector_store: Vector store instance / 向量存储实例
-            llm_client: LLM client instance / LLM客户端实例
-            retriever: Retriever instance / 检索器实例
-            reranker: Reranker instance / 重排序器实例
-            query_rewriter: Query rewriter instance / 查询重写器实例
-            generator: Generator instance / 生成器实例
-            min_relevant_docs: Minimum relevant docs before rewriting / 重写前的最小相关文档数
+            vector_store: Vector store instance 
+            llm_client: LLM client instance
+            retriever: Retriever instance
+            reranker: Reranker instance 
+            query_rewriter: Query rewriter instance 
+            generator: Generator instance
+            min_relevant_docs: Minimum relevant docs before rewriting 
         """
         self.vector_store = vector_store
         self.llm_client = llm_client
@@ -71,36 +67,36 @@ class ChatService:
     ) -> Dict:
         """
         Main Corrective RAG workflow
-        主要的矫正式RAG工作流
         
-        Workflow / 工作流:
-        1. Retrieve documents / 检索文档
+        
+        Workflow:
+        1. Retrieve documents 
         2. Grade relevance / 评估相关性
-        3. If not enough relevant docs: rewrite query & re-retrieve / 如果相关文档不足：重写查询并重新检索
-        4. Generate answer / 生成答案
+        3. If not enough relevant docs: rewrite query & re-retrieve
+        4. Generate answer 
         
         Args:
-            user_query: User's question / 用户的问题
-            conversation_history: Previous messages / 之前的消息
-            language: Query language (auto-detected if None) / 查询语言（None时自动检测）
+            user_query: User's question 
+            conversation_history: Previous messages
+            language: Query language (auto-detected if None) 
             
         Returns:
-            Response dictionary with answer, confidence, sources, etc. / 包含答案、置信度、来源等的响应字典
+            Response dictionary with answer, confidence, sources, etc.
         """
         start_time = time.time()
-        pipeline_log = []  # Track pipeline steps / 追踪流程步骤
+        pipeline_log = []  # Track pipeline steps
         
         try:
             logger.info(f"Starting Corrective RAG for query: '{user_query}'")
             
-            # Detect language if not provided / 如果未提供则检测语言
+            # Detect language if not provided
             if language is None:
                 language = self.query_rewriter.detect_language(user_query)
             
             pipeline_log.append(f"Detected language: {language}")
             
             # ========================================================================
-            # Step 1: Initial Retrieval / 步骤1：初始检索
+            # Step 1: Initial Retrieval
             # ========================================================================
             
             logger.info("Step 1: Initial retrieval")
@@ -124,7 +120,7 @@ class ChatService:
             pipeline_log.append(f"Initial retrieval: {len(docs_only)} documents")
             
             # ========================================================================
-            # Step 2: Grade Relevance / 步骤2：评估相关性
+            # Step 2: Grade Relevance 
             # ========================================================================
             
             logger.info("Step 2: Grading relevance")
@@ -136,7 +132,7 @@ class ChatService:
             )
             
             # ========================================================================
-            # Step 3: Query Rewriting (if needed) / 步骤3：查询重写（如需要）
+            # Step 3: Query Rewriting (if needed)
             # ========================================================================
             
             query_rewritten = False
@@ -149,14 +145,14 @@ class ChatService:
                 )
                 pipeline_log.append("Triggered query rewriting")
                 
-                # Rewrite query / 重写查询
+                # Rewrite query
                 rewritten_query = self.query_rewriter.rewrite(user_query, language)
                 query_rewritten = True
                 final_query = rewritten_query
                 
                 pipeline_log.append(f"Rewritten query: '{rewritten_query}'")
                 
-                # Re-retrieve with rewritten query / 使用重写后的查询重新检索
+                # Re-retrieve with rewritten query
                 logger.info("Step 3a: Re-retrieving with rewritten query")
                 retrieved_docs = self.retriever.retrieve(rewritten_query)
                 
@@ -178,7 +174,7 @@ class ChatService:
                 docs_only = [doc for doc, score in retrieved_docs]
                 pipeline_log.append(f"Re-retrieval: {len(docs_only)} documents")
                 
-                # Re-grade with original query / 使用原始查询重新评分
+                # Re-grade with original query
                 logger.info("Step 3b: Re-grading with original query")
                 graded_docs = self.reranker.grade_documents(user_query, docs_only)
                 relevant_docs = self.reranker.filter_by_threshold(graded_docs)
@@ -188,22 +184,22 @@ class ChatService:
                 )
             
             # ========================================================================
-            # Step 4: Generate Answer / 步骤4：生成答案
+            # Step 4: Generate Answer
             # ========================================================================
             
             logger.info("Step 4: Generating answer")
             
-            # Extract documents only (without scores) / 仅提取文档（不含分数）
+            # Extract documents only (without scores)
             final_docs = [doc for doc, score in relevant_docs]
             
-            # Generate answer / 生成答案
+            # Generate answer
             response = self.generator.generate(
-                query=user_query,  # Use original query for generation / 使用原始查询生成
+                query=user_query,  # Use original query for generation
                 documents=final_docs,
                 history=conversation_history
             )
             
-            # Add pipeline metadata / 添加流程元数据
+            # Add pipeline metadata
             response["pipeline_log"] = pipeline_log
             response["query_rewritten"] = query_rewritten
             if query_rewritten:
@@ -238,27 +234,25 @@ class ChatService:
     ) -> Dict:
         """
         Process user query (convenience method)
-        处理用户查询（便利方法）
         
         Args:
-            query: User query / 用户查询
-            history: Conversation history / 对话历史
+            query: User query 
+            history: Conversation history 
             
         Returns:
-            Response dictionary / 响应字典
+            Response dictionary
         """
         return self.corrective_rag_pipeline(query, history)
     
     def _get_no_docs_message(self, language: str) -> str:
         """
         Get message for when no documents are found
-        获取未找到文档时的消息
         
         Args:
-            language: Response language / 响应语言
+            language: Response language
             
         Returns:
-            Message text / 消息文本
+            Message text
         """
         messages = {
             "en": "I apologize, but I couldn't find any relevant information in the knowledge base to answer your question. Could you please rephrase your question or ask something else?",
@@ -270,10 +264,9 @@ class ChatService:
     def get_stats(self) -> Dict:
         """
         Get service statistics
-        获取服务统计信息
         
         Returns:
-            Statistics dictionary / 统计字典
+            Statistics dictionary
         """
         return {
             "retriever": self.retriever.get_retrieval_stats(),
@@ -282,7 +275,7 @@ class ChatService:
         }
 
 # ============================================================================
-# Convenience Functions / 便利函数
+# Convenience Functions
 # ============================================================================
 
 def create_chat_service(
@@ -292,15 +285,14 @@ def create_chat_service(
 ) -> ChatService:
     """
     Create fully configured chat service
-    创建完全配置的对话服务
-    
+
     Args:
-        vector_store: Vector store instance / 向量存储实例
-        llm_client: LLM client instance / LLM客户端实例
-        **kwargs: Additional arguments / 额外参数
+        vector_store: Vector store instance
+        llm_client: LLM client instance
+        **kwargs: Additional arguments
         
     Returns:
-        ChatService instance / 对话服务实例
+        ChatService instance
     """
     from retriever import create_retriever
     from reranker import create_reranker
@@ -323,7 +315,7 @@ def create_chat_service(
     )
 
 # ============================================================================
-# Example Usage / 使用示例
+# Example Usage
 # ============================================================================
 
 if __name__ == "__main__":
@@ -331,12 +323,12 @@ if __name__ == "__main__":
     from llm_client import create_llm_client
     
     try:
-        # Initialize components / 初始化组件
+        # Initialize components
         vector_store = create_vector_store()
         llm_client = create_llm_client()
         chat_service = create_chat_service(vector_store, llm_client)
         
-        # Test queries / 测试查询
+        # Test queries
         test_queries = [
             "What is the refund policy?",
             "How do I reset my password?",
@@ -361,7 +353,7 @@ if __name__ == "__main__":
                 print(f"  - {log}")
             print("=" * 80)
         
-        # Get stats / 获取统计
+        # Get stats
         stats = chat_service.get_stats()
         print(f"\n\nService Statistics:\n{stats}")
         
