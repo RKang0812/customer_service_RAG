@@ -1,0 +1,87 @@
+Frequently Asked Questions - Customer Support
+常见问题 - 客户支持
+
+=== Account Management / 账户管理 ===
+
+Q: How do I create an account?
+A: To create an account, click on the "Sign Up" button on our homepage. You'll need to provide your email address, create a password, and verify your email. The process takes about 2-3 minutes.
+
+Q: I forgot my password. How do I reset it?
+A: Click on "Forgot Password" on the login page. Enter your email address, and we'll send you a password reset link. The link is valid for 24 hours. Follow the instructions in the email to create a new password.
+
+Q: Can I change my email address?
+A: Yes, you can change your email address in your account settings. Go to Settings > Account > Email. You'll need to verify your new email address before the change takes effect.
+
+Q: How do I delete my account?
+A: To delete your account, go to Settings > Account > Delete Account. Please note that this action is permanent and cannot be undone. All your data will be deleted within 30 days.
+
+问：如何创建账户？
+答：要创建账户，请点击我们主页上的"注册"按钮。您需要提供电子邮件地址、创建密码并验证您的电子邮件。整个过程大约需要2-3分钟。
+
+问：我忘记了密码。如何重置？
+答：在登录页面点击"忘记密码"。输入您的电子邮件地址，我们将向您发送密码重置链接。该链接24小时内有效。按照电子邮件中的说明创建新密码。
+
+=== Orders & Shipping / 订单与配送 ===
+
+Q: How long does shipping take?
+A: Standard shipping takes 5-7 business days. Express shipping takes 2-3 business days. International shipping varies by country but typically takes 10-15 business days.
+
+Q: Can I track my order?
+A: Yes, once your order ships, you'll receive a tracking number via email. You can also track your order in your account dashboard under "Orders".
+
+Q: What if my package is lost or damaged?
+A: If your package is lost or arrives damaged, please contact our support team within 48 hours of the expected delivery date. We'll investigate and arrange a replacement or refund.
+
+问：配送需要多长时间？
+答：标准配送需要5-7个工作日。快速配送需要2-3个工作日。国际配送因国家而异，但通常需要10-15个工作日。
+
+=== Returns & Refunds / 退货与退款 ===
+
+Q: What is your return policy?
+A: We accept returns within 30 days of purchase for most items. Items must be in original condition with tags attached. Refunds are processed within 5-7 business days after we receive your return.
+
+Q: How do I initiate a return?
+A: Log into your account, go to "Order History", select the item you want to return, and click "Return Item". Print the prepaid return label and ship the item back to us.
+
+Q: What items cannot be returned?
+A: Personalized items, digital products, and items marked as "Final Sale" cannot be returned. Health and hygiene products can only be returned if unopened.
+
+Q: When will I receive my refund?
+A: Refunds are processed within 5-7 business days after we receive and inspect your return. The refund will be credited to your original payment method. It may take an additional 3-5 business days for the refund to appear in your account.
+
+问：你们的退货政策是什么？
+答：大多数商品我们接受购买后30天内的退货。商品必须保持原始状态并带有标签。我们收到退货后5-7个工作日内处理退款。
+
+问：如何发起退货？
+答：登录您的账户，转到"订单历史"，选择要退货的商品，然后点击"退货"。打印预付费退货标签并将商品寄回给我们。
+
+=== Payment & Billing / 支付与账单 ===
+
+Q: What payment methods do you accept?
+A: We accept all major credit cards (Visa, Mastercard, American Express), PayPal, Apple Pay, and Google Pay.
+
+Q: Is my payment information secure?
+A: Yes, we use industry-standard SSL encryption to protect your payment information. We never store your full credit card details on our servers.
+
+Q: Can I pay in installments?
+A: Yes, we offer installment payment options through Klarna and Afterpay for purchases over $50. The option will appear at checkout if you're eligible.
+
+问：你们接受哪些支付方式？
+答：我们接受所有主要信用卡（Visa、Mastercard、American Express）、PayPal、Apple Pay和Google Pay。
+
+=== Technical Support / 技术支持 ===
+
+Q: The website is not loading properly. What should I do?
+A: Try clearing your browser cache and cookies. If that doesn't work, try a different browser or device. Make sure you're using an updated browser version.
+
+Q: I'm having trouble uploading files. What's wrong?
+A: Check that your file is in a supported format (PDF, JPG, PNG) and under 10MB. Make sure you have a stable internet connection. If the problem persists, try using a different browser.
+
+Q: How do I contact customer support?
+A: You can reach us via:
+- Email: support@example.com (24-48 hour response time)
+- Live Chat: Available Monday-Friday 9AM-6PM EST
+- Phone: 1-800-SUPPORT (Mon-Fri 9AM-6PM EST)
+
+问：网站无法正常加载。我该怎么办？
+答：尝试清除浏览器缓存和cookie。如果这不起作用，尝试使用其他浏览器或设备。确保您使用的是最新版本的浏览器。

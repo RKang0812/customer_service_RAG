@@ -1,0 +1,131 @@
+Product Information Guide
+产品信息指南
+
+=== Product Categories / 产品类别 ===
+
+1. Electronics / 电子产品
+   - Laptops and tablets / 笔记本电脑和平板电脑
+   - Smartphones and accessories / 智能手机和配件
+   - Headphones and audio equipment / 耳机和音频设备
+   - Smart home devices / 智能家居设备
+
+2. Clothing & Apparel / 服装
+   - Men's wear / 男装
+   - Women's wear / 女装
+   - Kids' clothing / 童装
+   - Accessories / 配饰
+
+3. Home & Garden / 家居与园艺
+   - Furniture / 家具
+   - Kitchen appliances / 厨房电器
+   - Gardening tools / 园艺工具
+   - Home décor / 家居装饰
+
+=== Product Warranties / 产品保修 ===
+
+Standard Warranty:
+- Electronics: 1-year manufacturer warranty
+- Appliances: 2-year limited warranty
+- Furniture: 5-year structural warranty
+- Clothing: 90-day quality guarantee
+
+标准保修：
+- 电子产品：1年制造商保修
+- 电器：2年有限保修
+- 家具：5年结构保修
+- 服装：90天质量保证
+
+Extended Warranty:
+- Available for purchase on electronics and appliances
+- Covers accidental damage and wear-and-tear
+- Extends coverage by 1-3 years depending on product
+- Can be purchased within 30 days of original purchase
+
+=== Product Care Instructions / 产品保养说明 ===
+
+Electronics:
+- Keep away from water and extreme temperatures
+- Clean with microfiber cloth only
+- Update software regularly
+- Store in protective cases when not in use
+
+Clothing:
+- Follow care label instructions
+- Wash similar colors together
+- Air dry delicate items
+- Iron on appropriate temperature settings
+
+Furniture:
+- Dust regularly with soft cloth
+- Avoid direct sunlight to prevent fading
+- Tighten screws and bolts periodically
+- Use coasters and placemats to protect surfaces
+
+=== Size Guides / 尺码指南 ===
+
+Clothing Sizes:
+- XS: Chest 32-34", Waist 24-26"
+- S: Chest 34-36", Waist 26-28"
+- M: Chest 36-38", Waist 28-30"
+- L: Chest 38-40", Waist 30-32"
+- XL: Chest 40-42", Waist 32-34"
+- XXL: Chest 42-44", Waist 34-36"
+
+Shoe Sizes:
+- US sizes available from 5-13 for adults
+- Half sizes available
+- Width options: Narrow, Regular, Wide
+- Kids' sizes: Toddler 5-13, Youth 1-7
+
+=== Product Availability / 产品可用性 ===
+
+In Stock:
+- Items marked "In Stock" ship within 1-2 business days
+- Updated daily at midnight EST
+
+Pre-Order:
+- Some new releases available for pre-order
+- Expected ship date shown on product page
+- No charge until item ships
+
+Out of Stock:
+- Sign up for restock notifications
+- Estimated restock dates shown when available
+- Alternative products recommended
+
+库存状态：
+- 标记为"有货"的商品在1-2个工作日内发货
+- 每天午夜东部时间更新
+
+预订：
+- 部分新品可供预订
+- 产品页面显示预期发货日期
+- 发货前不收费
+
+=== Product Quality Standards / 产品质量标准 ===
+
+We ensure all products meet:
+- Industry safety standards
+- Environmental regulations
+- Fair labor practices
+- Quality control testing before shipping
+
+我们确保所有产品符合：
+- 行业安全标准
+- 环境法规
+- 公平劳动实践
+- 发货前的质量控制测试
+
+=== Bulk Orders / 批量订单 ===
+
+For orders of 20+ items:
+- Contact our wholesale team for special pricing
+- Minimum order value: $500
+- Custom packaging available
+- Dedicated account manager assigned
+
+批量订单（20件以上）：
+- 联系我们的批发团队获取特别价格
+- 最低订单金额：500美元
+- 可提供定制包装
+- 分配专属客户经理
