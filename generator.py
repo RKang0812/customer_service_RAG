@@ -1,9 +1,5 @@
 """
 Generator
-生成器
-
-This module generates final answers with source citations.
-本模块生成带来源引用的最终答案。
 """
 
 from typing import List, Dict, Optional
@@ -21,13 +17,13 @@ from logger_config import setup_logger, log_generation, log_error
 logger = setup_logger(__name__)
 
 # ============================================================================
-# Generator Class / 生成器类
+# Generator Class
 # ============================================================================
 
 class Generator:
     """
     Generate answers with source citations
-    生成带来源引用的答案
+
     """
     
     def __init__(
@@ -38,12 +34,11 @@ class Generator:
     ):
         """
         Initialize generator
-        初始化生成器
-        
+
         Args:
-            llm_client: LLM client instance / LLM客户端实例
-            prompt_template: Prompt template for generation / 用于生成的提示词模板
-            prompt_with_history: Prompt template with conversation history / 带对话历史的提示词模板
+            llm_client: LLM client instance
+            prompt_template: Prompt template for generation
+            prompt_with_history: Prompt template with conversation history 
         """
         self.llm_client = llm_client
         self.prompt_template = prompt_template
@@ -54,13 +49,12 @@ class Generator:
     def format_context(self, documents: List[Document]) -> str:
         """
         Format documents into context string
-        将文档格式化为上下文字符串
         
         Args:
-            documents: List of documents / 文档列表
+            documents: List of documents
             
         Returns:
-            Formatted context / 格式化的上下文
+            Formatted context
         """
         if not documents:
             return "No relevant documents found."
@@ -80,20 +74,19 @@ class Generator:
     def format_history(self, history: List[Dict[str, str]]) -> str:
         """
         Format conversation history
-        格式化对话历史
         
         Args:
-            history: List of message dicts with 'role' and 'content' / 包含'role'和'content'的消息字典列表
+            history: List of message dicts with 'role' and 'content'
             
         Returns:
-            Formatted history / 格式化的历史
+            Formatted history
         """
         if not history:
             return "No previous conversation."
         
         history_parts = []
         
-        for msg in history[-6:]:  # Keep last 6 messages / 保留最后6条消息
+        for msg in history[-6:]:  # Keep last 6 messages 
             role = msg.get("role", "unknown")
             content = msg.get("content", "")
             
@@ -107,13 +100,12 @@ class Generator:
     def extract_sources(self, documents: List[Document]) -> List[str]:
         """
         Extract unique source names from documents
-        从文档中提取唯一的来源名称
         
         Args:
-            documents: List of documents / 文档列表
+            documents: List of documents
             
         Returns:
-            List of source names / 来源名称列表
+            List of source names
         """
         sources = []
         seen = set()
@@ -133,37 +125,36 @@ class Generator:
     ) -> float:
         """
         Calculate confidence score for the answer
-        计算答案的置信度分数
         
         Args:
-            documents: Source documents / 来源文档
-            answer: Generated answer / 生成的答案
+            documents: Source documents
+            answer: Generated answer
             
         Returns:
-            Confidence score (0-1) / 置信度分数（0-1）
+            Confidence score (0-1)
         """
         # Simple heuristic based on:
-        # 1. Number of documents / 文档数量
-        # 2. Answer length / 答案长度
-        # 3. Presence of citations / 是否有引用
+        # 1. Number of documents
+        # 2. Answer length 
+        # 3. Presence of citations
         
-        confidence = 0.5  # Base confidence / 基础置信度
+        confidence = 0.5  # Base confidence 
         
-        # More documents = higher confidence / 更多文档 = 更高置信度
+        # More documents = higher confidence
         if len(documents) >= 3:
             confidence += 0.2
         elif len(documents) >= 2:
             confidence += 0.1
         
-        # Reasonable answer length / 合理的答案长度
+        # Reasonable answer length
         if 50 < len(answer) < 500:
             confidence += 0.1
         
-        # Check for citations (brackets) / 检查引用（括号）
+        # Check for citations (brackets) 
         if "[" in answer and "]" in answer:
             confidence += 0.2
         
-        # Check for inability to answer / 检查是否无法回答
+        # Check for inability to answer
         unable_phrases = [
             "don't have enough information",
             "cannot find",
@@ -181,13 +172,12 @@ class Generator:
     def detect_unable_to_answer(self, answer: str) -> bool:
         """
         Detect if answer indicates inability to respond
-        检测答案是否表示无法回答
         
         Args:
-            answer: Generated answer / 生成的答案
+            answer: Generated answer
             
         Returns:
-            True if unable to answer / 如果无法回答返回True
+            True if unable to answer
         """
         unable_phrases = [
             "don't have enough information",
@@ -210,23 +200,22 @@ class Generator:
     ) -> Dict:
         """
         Generate answer from documents
-        从文档生成答案
         
         Args:
-            query: User query / 用户查询
-            documents: List of relevant documents / 相关文档列表
-            history: Optional conversation history / 可选的对话历史
+            query: User query 
+            documents: List of relevant documents 
+            history: Optional conversation history
             
         Returns:
-            Dictionary with answer, confidence, sources, etc. / 包含答案、置信度、来源等的字典
+            Dictionary with answer, confidence, sources, etc. 
         """
         start_time = time.time()
         
         try:
-            # Format context / 格式化上下文
+            # Format context 
             context = self.format_context(documents)
             
-            # Choose prompt template / 选择提示词模板
+            # Choose prompt template 
             if history and len(history) > 0:
                 history_text = self.format_history(history)
                 prompt = self.prompt_with_history.format(
@@ -248,7 +237,7 @@ class Generator:
                 {"role": "user", "content": prompt}
             ]
             
-            # Generate answer / 生成答案
+            # Generate answer
             answer = self.llm_client.chat_completion(
                 messages,
                 temperature=0.7
@@ -256,16 +245,16 @@ class Generator:
             
             answer = answer.strip()
             
-            # Extract sources / 提取来源
+            # Extract sources
             sources = self.extract_sources(documents)
             
-            # Calculate confidence / 计算置信度
+            # Calculate confidence
             confidence = self.calculate_confidence(documents, answer)
             
-            # Check if unable to answer / 检查是否无法回答
+            # Check if unable to answer
             unable_to_answer = self.detect_unable_to_answer(answer)
             
-            # Log generation / 记录生成
+            # Log generation
             duration = time.time() - start_time
             log_generation(logger, confidence, len(sources))
             logger.info(f"Generation took {duration:.2f}s")
@@ -281,7 +270,7 @@ class Generator:
         except Exception as e:
             log_error(logger, "generate", e)
             
-            # Return error response / 返回错误响应
+            # Return error response
             return {
                 "answer": "I apologize, but I encountered an error while generating the response. Please try again.",
                 "confidence": 0.0,
@@ -300,19 +289,18 @@ class Generator:
     ) -> Dict:
         """
         Generate answer with fallback message if no documents
-        生成答案，如果没有文档则使用后备消息
         
         Args:
-            query: User query / 用户查询
-            documents: List of documents / 文档列表
-            language: Response language / 响应语言
-            history: Optional conversation history / 可选的对话历史
+            query: User query 
+            documents: List of documents
+            language: Response language
+            history: Optional conversation history
             
         Returns:
-            Response dictionary / 响应字典
+            Response dictionary 
         """
         if not documents:
-            # No documents found - return unable to answer / 未找到文档 - 返回无法回答
+            # No documents found - return unable to answer
             unable_template = UNABLE_TO_ANSWER_TEMPLATE.get(language, UNABLE_TO_ANSWER_TEMPLATE["en"])
             
             return {
@@ -328,25 +316,24 @@ class Generator:
         return self.generate(query, documents, history)
 
 # ============================================================================
-# Convenience Functions / 便利函数
+# Convenience Functions 
 # ============================================================================
 
 def create_generator(llm_client: LLMClient, **kwargs) -> Generator:
     """
     Create and return generator instance
-    创建并返回生成器实例
-    
+
     Args:
-        llm_client: LLM client instance / LLM客户端实例
-        **kwargs: Additional arguments / 额外参数
+        llm_client: LLM client instance
+        **kwargs: Additional arguments
         
     Returns:
-        Generator instance / 生成器实例
+        Generator instance
     """
     return Generator(llm_client, **kwargs)
 
 # ============================================================================
-# Example Usage / 使用示例
+# Example Usage 
 # ============================================================================
 
 if __name__ == "__main__":
@@ -354,11 +341,11 @@ if __name__ == "__main__":
     from vector_store import Document
     
     try:
-        # Initialize components / 初始化组件
+        # Initialize components 
         llm_client = create_llm_client()
         generator = create_generator(llm_client)
         
-        # Test documents / 测试文档
+        # Test documents
         test_docs = [
             Document(
                 content="Our refund policy allows returns within 30 days of purchase with original receipt.",
@@ -370,7 +357,7 @@ if __name__ == "__main__":
             )
         ]
         
-        # Test generation / 测试生成
+        # Test generation
         query = "What is the refund policy?"
         
         print(f"Query: {query}\n")
