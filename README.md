@@ -3,7 +3,7 @@
 A structured Retrieval-Augmented Generation (RAG) application implementing a corrective retrieval pipeline to improve answer reliability and reduce hallucinations.
 This project demonstrates practical RAG system design, vector database integration, query rewriting, and relevance-based document filtering.
 
-[▶ Watch the Demo](.demo.mp4)
+[▶ Watch the Demo](demo.mp4)
 
 ## Overview
 
