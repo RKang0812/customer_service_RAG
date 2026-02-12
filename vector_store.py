@@ -1,11 +1,5 @@
 """
 Qdrant Vector Store
-Qdrant向量存储
-
-This module handles all interactions with the Qdrant vector database.
-本模块处理与Qdrant向量数据库的所有交互。
-
-Fixed for qdrant-client 1.16.2+
 """
 
 from typing import List, Dict, Optional, Tuple
@@ -32,13 +26,12 @@ from logger_config import setup_logger, log_error
 logger = setup_logger(__name__)
 
 # ============================================================================
-# Document Class / 文档类
+# Document Class
 # ============================================================================
 
 class Document:
     """
     Represents a document with content and metadata
-    表示带内容和元数据的文档
     """
     
     def __init__(
@@ -49,12 +42,11 @@ class Document:
     ):
         """
         Initialize document
-        初始化文档
         
         Args:
-            content: Document text content / 文档文本内容
-            metadata: Additional metadata / 附加元数据
-            doc_id: Unique document ID / 唯一文档ID
+            content: Document text content
+            metadata: Additional metadata
+            doc_id: Unique document ID
         """
         self.content = content
         self.metadata = metadata or {}
@@ -64,13 +56,12 @@ class Document:
         return f"Document(id={self.doc_id}, content_length={len(self.content)})"
 
 # ============================================================================
-# Vector Store Class / 向量存储类
+# Vector Store Class
 # ============================================================================
 
 class VectorStore:
     """
     Interface for Qdrant vector database operations
-    Qdrant向量数据库操作接口
     """
     
     def __init__(
@@ -82,20 +73,19 @@ class VectorStore:
     ):
         """
         Initialize vector store connection
-        初始化向量存储连接
         
         Args:
-            host: Qdrant server host / Qdrant服务器主机
-            port: Qdrant server port / Qdrant服务器端口
-            collection_name: Name of the collection / 集合名称
-            api_key: API key for authentication / 用于认证的API密钥
+            host: Qdrant server host
+            port: Qdrant server port 
+            collection_name: Name of the collection
+            api_key: API key for authentication
         """
         self.host = host
         self.port = port
         self.collection_name = collection_name
         
         try:
-            # Initialize Qdrant client / 初始化Qdrant客户端
+            # Initialize Qdrant client
             if api_key:
                 self.client = QdrantClient(
                     host=host,
@@ -112,7 +102,7 @@ class VectorStore:
             
             logger.info(f"Connected to Qdrant at {host}:{port}")
             
-            # Create collection if it doesn't exist / 如果集合不存在则创建
+            # Create collection if it doesn't exist 
             self._ensure_collection_exists()
             
         except Exception as e:
@@ -122,7 +112,6 @@ class VectorStore:
     def _ensure_collection_exists(self):
         """
         Create collection if it doesn't exist
-        如果集合不存在则创建
         """
         try:
             collections = self.client.get_collections().collections
@@ -151,17 +140,16 @@ class VectorStore:
     ) -> bool:
         """
         Add documents with their vectors to the collection
-        将文档及其向量添加到集合
         
         Args:
-            documents: List of Document objects / Document对象列表
-            vectors: List of embedding vectors / 嵌入向量列表
+            documents: List of Document objects 
+            vectors: List of embedding vectors
             
         Returns:
-            Success status / 成功状态
+            Success status
         """
         if len(documents) != len(vectors):
-            raise ValueError("Number of documents must match number of vectors / 文档数量必须与向量数量匹配")
+            raise ValueError("Number of documents must match number of vectors")
         
         try:
             points = []
@@ -196,18 +184,17 @@ class VectorStore:
     ) -> List[Tuple[Document, float]]:
         """
         Search for similar documents
-        搜索相似文档
         
         Args:
-            query_vector: Query embedding vector / 查询嵌入向量
-            top_k: Number of results to return / 返回的结果数量
-            filter_dict: Optional metadata filters / 可选的元数据过滤器
+            query_vector: Query embedding vector
+            top_k: Number of results to return
+            filter_dict: Optional metadata filters
             
         Returns:
-            List of (Document, score) tuples / (Document, 分数)元组列表
+            List of (Document, score) tuples
         """
         try:
-            # Build filter if provided / 如果提供则构建过滤器
+            # Build filter if provided
             search_filter = None
             if filter_dict:
                 conditions = []
@@ -220,9 +207,6 @@ class VectorStore:
                     )
                 search_filter = Filter(must=conditions)
             
-            # Perform search using query method / 使用query方法执行搜索
-            # In qdrant-client 1.16+, use query() instead of search()
-            # 在qdrant-client 1.16+中，使用query()而不是search()
             results = self.client.query_points(
                 collection_name=self.collection_name,
                 query=query_vector,
@@ -231,10 +215,10 @@ class VectorStore:
                 with_payload=True
             )
             
-            # Convert to Document objects / 转换为Document对象
+            # Convert to Document objects
             documents_with_scores = []
             
-            # Handle different response formats / 处理不同的响应格式
+            # Handle different response formats
             points = results.points if hasattr(results, 'points') else results
             
             for result in points:
@@ -243,7 +227,7 @@ class VectorStore:
                     metadata=result.payload.get("metadata", {}),
                     doc_id=str(result.id)
                 )
-                # Score is in result.score / 分数在result.score中
+                # Score is in result.score
                 score = result.score if hasattr(result, 'score') else 0.0
                 documents_with_scores.append((doc, score))
             
@@ -257,13 +241,12 @@ class VectorStore:
     def delete_by_id(self, doc_id: str) -> bool:
         """
         Delete document by ID
-        按ID删除文档
         
         Args:
-            doc_id: Document ID to delete / 要删除的文档ID
+            doc_id: Document ID to delete
             
         Returns:
-            Success status / 成功状态
+            Success status
         """
         try:
             from qdrant_client.models import PointIdsList
@@ -282,13 +265,12 @@ class VectorStore:
     def delete_by_metadata(self, metadata_filter: Dict) -> bool:
         """
         Delete documents matching metadata filter
-        删除匹配元数据过滤器的文档
         
         Args:
-            metadata_filter: Metadata key-value pairs / 元数据键值对
+            metadata_filter: Metadata key-value pairs
             
         Returns:
-            Success status / 成功状态
+            Success status
         """
         try:
             from qdrant_client.models import FilterSelector
@@ -319,10 +301,9 @@ class VectorStore:
     def get_collection_info(self) -> Dict:
         """
         Get information about the collection
-        获取集合的信息
         
         Returns:
-            Collection information / 集合信息
+            Collection information
         """
         try:
             info = self.client.get_collection(collection_name=self.collection_name)
@@ -339,16 +320,15 @@ class VectorStore:
     def list_all_documents(self, limit: int = 100) -> List[Document]:
         """
         List all documents in the collection
-        列出集合中的所有文档
         
         Args:
-            limit: Maximum number of documents to return / 返回的最大文档数量
+            limit: Maximum number of documents to return 
             
         Returns:
-            List of documents / 文档列表
+            List of documents
         """
         try:
-            # Scroll through all points / 滚动浏览所有点
+            # Scroll through all points
             points, _ = self.client.scroll(
                 collection_name=self.collection_name,
                 limit=limit,
@@ -373,36 +353,35 @@ class VectorStore:
             return []
 
 # ============================================================================
-# Convenience Functions / 便利函数
+# Convenience Functions
 # ============================================================================
 
 def create_vector_store(**kwargs) -> VectorStore:
     """
     Create and return vector store instance
-    创建并返回向量存储实例
     
     Args:
-        **kwargs: Arguments to pass to VectorStore / 传递给VectorStore的参数
+        **kwargs: Arguments to pass to VectorStore
         
     Returns:
-        Vector store instance / 向量存储实例
+        Vector store instance
     """
     return VectorStore(**kwargs)
 
 # ============================================================================
-# Example Usage / 使用示例
+# Example Usage
 # ============================================================================
 
 if __name__ == "__main__":
-    # Test vector store / 测试向量存储
+    # Test vector store
     try:
         store = VectorStore()
         
-        # Get collection info / 获取集合信息
+        # Get collection info
         info = store.get_collection_info()
         print(f"Collection info: {info}\n")
         
-        # Create test documents / 创建测试文档
+        # Create test documents
         test_docs = [
             Document(
                 content="Our refund policy allows returns within 30 days.",
@@ -414,7 +393,7 @@ if __name__ == "__main__":
             )
         ]
         
-        # For actual use, you would generate real embeddings / 实际使用时，你需要生成真实的嵌入
+        # For actual use, you would generate real embeddings
         # test_vectors = [llm_client.get_embedding(doc.content) for doc in test_docs]
         
         print("Vector store initialized successfully")
