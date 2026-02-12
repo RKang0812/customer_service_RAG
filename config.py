@@ -1,19 +1,16 @@
 """
 Configuration and Prompt Templates
-配置和提示词模板
 
-This module contains all system configurations and prompt templates.
-本模块包含所有系统配置和提示词模板。
 """
 
 import os
 from dotenv import load_dotenv
 
-# Load environment variables / 加载环境变量
+# Load environment variables
 load_dotenv()
 
 # ============================================================================
-# OpenAI Configuration / OpenAI配置
+# OpenAI Configuration
 # ============================================================================
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
@@ -22,7 +19,7 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7"))
 
 # ============================================================================
-# Qdrant Configuration / Qdrant配置
+# Qdrant Configuration
 # ============================================================================
 
 QDRANT_HOST = os.getenv("QDRANT_HOST", "localhost")
@@ -34,7 +31,7 @@ QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", None)  # Optional / 可选
 VECTOR_DIMENSION = 1536
 
 # ============================================================================
-# RAG Parameters / RAG参数
+# RAG Parameters
 # ============================================================================
 
 TOP_K = int(os.getenv("TOP_K", "5"))
@@ -43,27 +40,26 @@ CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "500"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "50"))
 
 # Minimum number of relevant documents before triggering query rewrite
-# 触发查询重写前的最小相关文档数
 MIN_RELEVANT_DOCS = 2
 
 # ============================================================================
-# System Settings / 系统设置
+# System Settings
 # ============================================================================
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 DEFAULT_LANGUAGE = os.getenv("DEFAULT_LANGUAGE", "en")
 
-# Supported languages / 支持的语言
+# Supported languages
 SUPPORTED_LANGUAGES = {
     "en": "English",
     "zh": "中文"
 }
 
 # ============================================================================
-# Prompt Templates / 提示词模板
+# Prompt Templates 
 # ============================================================================
 
-# Relevance Grading Prompt / 相关性评分提示词
+# Relevance Grading Prompt
 RELEVANCE_GRADING_PROMPT = """You are evaluating the relevance of a retrieved document to a user question.
 
 Question: {question}
@@ -82,7 +78,7 @@ Respond with a JSON object in the following format:
 Be strict - only mark as relevant if the document actually addresses the question.
 """
 
-# Query Rewriting Prompt (Few-shot) / 查询重写提示词（Few-shot）
+# Query Rewriting Prompt (Few-shot)
 QUERY_REWRITING_PROMPT = """You are a query rewriting assistant. Your task is to rewrite user queries to improve document retrieval.
 
 Examples:
@@ -100,7 +96,7 @@ Original: {query}
 
 Rewritten query (preserve the original language):"""
 
-# Answer Generation Prompt / 答案生成提示词
+# Answer Generation Prompt
 ANSWER_GENERATION_PROMPT = """You are a helpful customer service assistant. Use the provided context to answer the user's question.
 
 Context Documents:
@@ -118,7 +114,7 @@ Instructions:
 
 Answer:"""
 
-# Answer Generation with History / 带历史记录的答案生成
+# Answer Generation with History
 ANSWER_GENERATION_WITH_HISTORY_PROMPT = """You are a helpful customer service assistant. Use the provided context and conversation history to answer the user's question.
 
 Conversation History:
@@ -140,7 +136,7 @@ Instructions:
 
 Answer:"""
 
-# Unable to Answer Template / 无法回答模板
+# Unable to Answer Template
 UNABLE_TO_ANSWER_TEMPLATE = {
     "en": """I apologize, but I couldn't find enough information in our knowledge base to answer your question completely.
 
@@ -164,7 +160,7 @@ Would you like me to:
 }
 
 # ============================================================================
-# UI Text / 界面文本
+# UI Text
 # ============================================================================
 
 UI_TEXT = {
@@ -205,13 +201,12 @@ UI_TEXT = {
 }
 
 # ============================================================================
-# Validation / 验证
+# Validation
 # ============================================================================
 
 def validate_config():
     """
     Validate critical configuration values
-    验证关键配置值
     """
     errors = []
     
@@ -230,7 +225,7 @@ def validate_config():
     if errors:
         raise ValueError(f"Configuration errors:\n" + "\n".join(errors))
 
-# Validate on import / 导入时验证
+# Validate on import
 if __name__ != "__main__":
     try:
         validate_config()
