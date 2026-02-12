@@ -134,7 +134,7 @@ customer-service-rag/
 - Configurable hyperparameters for experimentation
 - Persistent vector storage for production-like behavior
 
-## 🔄 Corrective RAG Workflow / 矫正式RAG工作流
+## Corrective RAG Workflow
 
 ```
 1. User Query → Initial Retrieval
