@@ -1,9 +1,6 @@
 """
 Query Rewriter
-查询重写器
 
-This module rewrites user queries to improve retrieval quality.
-本模块重写用户查询以提升检索质量。
 """
 
 from typing import Optional
@@ -16,13 +13,12 @@ from logger_config import setup_logger, log_query_rewrite, log_error
 logger = setup_logger(__name__)
 
 # ============================================================================
-# Query Rewriter Class / 查询重写器类
+# Query Rewriter Class
 # ============================================================================
 
 class QueryRewriter:
     """
     Rewrite queries for better document retrieval
-    重写查询以提升文档检索效果
     """
     
     def __init__(
@@ -32,11 +28,10 @@ class QueryRewriter:
     ):
         """
         Initialize query rewriter
-        初始化查询重写器
         
         Args:
-            llm_client: LLM client instance / LLM客户端实例
-            prompt_template: Prompt template for rewriting / 用于重写的提示词模板
+            llm_client: LLM client instance
+            prompt_template: Prompt template for rewriting 
         """
         self.llm_client = llm_client
         self.prompt_template = prompt_template
@@ -46,18 +41,17 @@ class QueryRewriter:
     def detect_language(self, query: str) -> str:
         """
         Detect if query is in English or Chinese
-        检测查询是英文还是中文
         
         Args:
-            query: User query / 用户查询
+            query: User query 
             
         Returns:
-            Language code: 'en' or 'zh' / 语言代码：'en'或'zh'
+            Language code: 'en' or 'zh'
         """
-        # Simple heuristic: check for Chinese characters / 简单启发式：检查中文字符
+        # Simple heuristic: check for Chinese characters 
         chinese_chars = re.findall(r'[\u4e00-\u9fff]', query)
         
-        if len(chinese_chars) > len(query) * 0.3:  # If >30% Chinese characters / 如果>30%中文字符
+        if len(chinese_chars) > len(query) * 0.3:  # If >30% Chinese characters
             return 'zh'
         return 'en'
     
@@ -68,21 +62,20 @@ class QueryRewriter:
     ) -> str:
         """
         Rewrite query for better retrieval
-        重写查询以提升检索效果
         
         Args:
-            query: Original user query / 原始用户查询
-            language: Query language ('en' or 'zh'), auto-detected if None / 查询语言，None时自动检测
+            query: Original user query
+            language: Query language ('en' or 'zh'), auto-detected if None 
             
         Returns:
-            Rewritten query / 重写后的查询
+            Rewritten query
         """
         try:
-            # Detect language if not provided / 如果未提供则检测语言
+            # Detect language if not provided
             if language is None:
                 language = self.detect_language(query)
             
-            # Format prompt / 格式化提示词
+            # Format prompt
             prompt = self.prompt_template.format(query=query)
             
             messages = [
@@ -93,44 +86,43 @@ class QueryRewriter:
                 {"role": "user", "content": prompt}
             ]
             
-            # Get rewritten query / 获取重写后的查询
+            # Get rewritten query
             rewritten = self.llm_client.chat_completion(
                 messages,
-                temperature=0.3  # Lower temperature for more consistent rewrites / 较低温度以获得更一致的重写
+                temperature=0.3  # Lower temperature for more consistent rewrites
             )
             
-            # Clean up response / 清理响应
+            # Clean up response
             rewritten = rewritten.strip()
             
-            # Remove any quotes or extra formatting / 移除任何引号或额外格式
+            # Remove any quotes or extra formatting 
             rewritten = rewritten.strip('"\'')
             
-            # If rewrite failed or is too short, return original / 如果重写失败或太短，返回原始查询
+            # If rewrite failed or is too short, return original 
             if not rewritten or len(rewritten) < 3:
                 logger.warning("Rewrite produced empty or too short result, using original query")
                 return query
             
-            # Log the rewrite / 记录重写
+            # Log the rewrite
             log_query_rewrite(logger, query, rewritten)
             
             return rewritten
         
         except Exception as e:
             log_error(logger, "rewrite", e)
-            # Return original query on error / 出错时返回原始查询
+            # Return original query on error 
             logger.warning("Query rewrite failed, using original query")
             return query
     
     def expand_query(self, query: str) -> str:
         """
         Expand query with related terms (alternative approach)
-        使用相关术语扩展查询（替代方法）
         
         Args:
-            query: Original query / 原始查询
+            query: Original query
             
         Returns:
-            Expanded query / 扩展后的查询
+            Expanded query
         """
         try:
             messages = [
@@ -160,13 +152,12 @@ class QueryRewriter:
     def simplify_query(self, query: str) -> str:
         """
         Simplify complex query (useful for debugging)
-        简化复杂查询（用于调试）
         
         Args:
-            query: Original query / 原始查询
+            query: Original query
             
         Returns:
-            Simplified query / 简化后的查询
+            Simplified query
         """
         try:
             messages = [
@@ -194,36 +185,35 @@ class QueryRewriter:
             return query
 
 # ============================================================================
-# Convenience Functions / 便利函数
+# Convenience Functions
 # ============================================================================
 
 def create_query_rewriter(llm_client: LLMClient, **kwargs) -> QueryRewriter:
     """
     Create and return query rewriter instance
-    创建并返回查询重写器实例
     
     Args:
-        llm_client: LLM client instance / LLM客户端实例
-        **kwargs: Additional arguments / 额外参数
+        llm_client: LLM client instance
+        **kwargs: Additional arguments
         
     Returns:
-        QueryRewriter instance / 查询重写器实例
+        QueryRewriter instance
     """
     return QueryRewriter(llm_client, **kwargs)
 
 # ============================================================================
-# Example Usage / 使用示例
+# Example Usage
 # ============================================================================
 
 if __name__ == "__main__":
     from llm_client import create_llm_client
     
     try:
-        # Initialize components / 初始化组件
+        # Initialize components
         llm_client = create_llm_client()
         rewriter = create_query_rewriter(llm_client)
         
-        # Test queries / 测试查询
+        # Test queries
         test_queries = [
             "refund?",
             "not working",
@@ -243,7 +233,7 @@ if __name__ == "__main__":
             print(f"Rewritten:      {rewritten}")
             print("-" * 80)
         
-        # Test expansion / 测试扩展
+        # Test expansion 
         print("\n\nQuery Expansion Example:\n")
         print("=" * 80)
         
