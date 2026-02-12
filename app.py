@@ -1,16 +1,12 @@
 """
 Customer Service RAG System - Streamlit Application
-客服RAG系统 - Streamlit应用
 
-Main application interface with bilingual support.
-带双语支持的主应用界面。
 """
 
 import streamlit as st
 import sys
 from pathlib import Path
 
-# Add current directory to path / 将当前目录添加到路径
 sys.path.insert(0, str(Path(__file__).parent))
 
 from vector_store import create_vector_store
@@ -23,7 +19,7 @@ from logger_config import setup_logger
 logger = setup_logger("streamlit_app")
 
 # ============================================================================
-# Page Configuration / 页面配置
+# Page Configuration
 # ============================================================================
 
 st.set_page_config(
@@ -34,11 +30,11 @@ st.set_page_config(
 )
 
 # ============================================================================
-# Session State Initialization / 会话状态初始化
+# Session State Initialization
 # ============================================================================
 
 def init_session_state():
-    """Initialize session state variables / 初始化会话状态变量"""
+    """Initialize session state variables"""
     if "messages" not in st.session_state:
         st.session_state.messages = []
     
@@ -61,19 +57,19 @@ def init_session_state():
         st.session_state.knowledge_service = None
 
 def get_text(key: str) -> str:
-    """Get UI text in current language / 获取当前语言的UI文本"""
+    """Get UI text in current language"""
     lang = st.session_state.language
     return UI_TEXT.get(lang, UI_TEXT["en"]).get(key, key)
 
 # ============================================================================
-# Service Initialization / 服务初始化
+# Service Initialization
 # ============================================================================
 
 @st.cache_resource
 def initialize_services():
-    """Initialize all services (cached) / 初始化所有服务（缓存）"""
+    """Initialize all services (cached) """
     try:
-        with st.spinner("Initializing services... / 正在初始化服务..."):
+        with st.spinner("Initializing services..."):
             vector_store = create_vector_store()
             llm_client = create_llm_client()
             chat_service = create_chat_service(vector_store, llm_client)
@@ -88,69 +84,69 @@ def initialize_services():
         st.stop()
 
 # ============================================================================
-# Chat Interface / 对话界面
+# Chat Interface
 # ============================================================================
 
 def chat_tab():
-    """Main chat interface / 主对话界面"""
+    """Main chat interface"""
     st.title(get_text("app_title"))
     st.caption(get_text("app_subtitle"))
     
-    # Display chat history / 显示对话历史
+    # Display chat history
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
             
-            # Show sources if available / 如果有来源则显示
+            # Show sources if available
             if message["role"] == "assistant" and "sources" in message:
                 if message["sources"]:
                     with st.expander(f"📚 {get_text('sources')} ({len(message['sources'])})"):
                         for source in message["sources"]:
                             st.text(f"• {source}")
                 
-                # Show confidence / 显示置信度
+                # Show confidence
                 if "confidence" in message:
                     confidence = message["confidence"]
                     st.caption(f"{get_text('confidence')}: {confidence:.0%}")
     
-    # Chat input / 聊天输入
+    # Chat input
     if prompt := st.chat_input(get_text("user_input_placeholder")):
-        # Add user message / 添加用户消息
+        # Add user message
         st.session_state.messages.append({"role": "user", "content": prompt})
         
         with st.chat_message("user"):
             st.markdown(prompt)
         
-        # Generate response / 生成响应
+        # Generate response
         with st.chat_message("assistant"):
             with st.spinner(get_text("processing")):
                 try:
-                    # Get conversation history / 获取对话历史
+                    # Get conversation history
                     history = [
                         {"role": msg["role"], "content": msg["content"]}
                         for msg in st.session_state.messages[-6:]  # Last 6 messages
                     ]
                     
-                    # Process query / 处理查询
+                    # Process query
                     response = st.session_state.chat_service.process_query(
                         prompt,
                         history=history[:-1]  # Exclude current message
                     )
                     
-                    # Display answer / 显示答案
+                    # Display answer 
                     st.markdown(response["answer"])
                     
-                    # Display sources / 显示来源
+                    # Display sources
                     if response.get("sources"):
                         with st.expander(f"📚 {get_text('sources')} ({len(response['sources'])})"):
                             for source in response["sources"]:
                                 st.text(f"• {source}")
                     
-                    # Display confidence / 显示置信度
+                    # Display confidence
                     confidence = response.get("confidence", 0)
                     st.caption(f"{get_text('confidence')}: {confidence:.0%}")
                     
-                    # Add assistant message / 添加助手消息
+                    # Add assistant message
                     st.session_state.messages.append({
                         "role": "assistant",
                         "content": response["answer"],
@@ -168,14 +164,14 @@ def chat_tab():
                     })
 
 # ============================================================================
-# Knowledge Base Management / 知识库管理
+# Knowledge Base Management 
 # ============================================================================
 
 def knowledge_tab():
-    """Knowledge base management interface / 知识库管理界面"""
+    """Knowledge base management interface """
     st.title(f"📚 {get_text('knowledge_tab')}")
     
-    # Get collection stats / 获取集合统计
+    # Get collection stats
     try:
         stats = st.session_state.knowledge_service.get_collection_stats()
         
@@ -190,7 +186,7 @@ def knowledge_tab():
         
         st.divider()
         
-        # Document list / 文档列表
+        # Document list
         st.subheader(get_text("doc_list"))
         
         documents = st.session_state.knowledge_service.list_documents()
@@ -218,7 +214,7 @@ def knowledge_tab():
         
         st.divider()
         
-        # Upload new document / 上传新文档
+        # Upload new document
         st.subheader(get_text("upload_doc"))
         
         uploaded_file = st.file_uploader(
@@ -228,14 +224,14 @@ def knowledge_tab():
         )
         
         if uploaded_file:
-            # Save uploaded file / 保存上传的文件
+            # Save uploaded file
             upload_path = Path("data/uploads") / uploaded_file.name
             upload_path.parent.mkdir(parents=True, exist_ok=True)
             
             with open(upload_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
             
-            if st.button("Upload and Index / 上传并索引"):
+            if st.button("Upload and Index"):
                 with st.spinner(get_text("processing")):
                     result = st.session_state.knowledge_service.upload_document(
                         str(upload_path)
@@ -253,14 +249,14 @@ def knowledge_tab():
         st.error(f"{get_text('error')}: {str(e)}")
 
 # ============================================================================
-# Settings / 设置
+# Settings
 # ============================================================================
 
 def settings_tab():
-    """Settings interface / 设置界面"""
+    """Settings interface"""
     st.title(f"⚙️ {get_text('settings_tab')}")
     
-    # Language selection / 语言选择
+    # Language selection
     st.subheader("Language")
     
     language_options = {
@@ -281,7 +277,7 @@ def settings_tab():
     
     st.divider()
     
-    # System information / 系统信息
+    # System information
     st.subheader("System Information")
     
     try:
@@ -294,7 +290,7 @@ def settings_tab():
     
     st.divider()
     
-    # Clear chat history / 清除对话历史
+    # Clear chat history 
     st.subheader("Clear History")
     
     if st.button("Clear Chat History"):
@@ -303,14 +299,14 @@ def settings_tab():
         st.rerun()
 
 # ============================================================================
-# Main Application / 主应用
+# Main Application
 # ============================================================================
 
 def main():
     """Main application entry point"""
     init_session_state()
     
-    # Initialize services / 初始化服务
+    # Initialize services
     if not st.session_state.services_initialized:
         try:
             (
@@ -327,13 +323,13 @@ def main():
             st.info("Make sure Qdrant is running: docker-compose up -d")
             st.stop()
     
-    # Sidebar / 侧边栏
+    # Sidebar
     with st.sidebar:
         st.image("https://image2url.com/r2/default/images/1770897387207-b329c78e-978a-48ac-a1df-f3afb6a84abf.png", width=60)
         
         st.markdown("---")
         
-        # Tab selection / 标签选择
+        # Tab selection
         selected_tab = st.radio(
             "Navigation",
             [
@@ -346,12 +342,12 @@ def main():
         
         st.markdown("---")
         
-        # Quick info / 快速信息
+        # Quick info
         st.caption("💡 Quick Tips")
         st.caption("• View sources for each answer")
         st.caption("• Manage documents in Knowledge Base")
     
-    # Main content area / 主内容区域
+    # Main content area
     if selected_tab == get_text("chat_tab"):
         chat_tab()
     elif selected_tab == get_text("knowledge_tab"):
