@@ -1,9 +1,5 @@
 """
 Knowledge Service
-知识库服务
-
-This module manages the knowledge base (add, delete, list documents).
-本模块管理知识库（添加、删除、列出文档）。
 """
 
 from typing import List, Dict, Optional
@@ -18,13 +14,12 @@ from logger_config import setup_logger, log_error
 logger = setup_logger(__name__)
 
 # ============================================================================
-# Knowledge Service Class / 知识库服务类
+# Knowledge Service Class 
 # ============================================================================
 
 class KnowledgeService:
     """
     Manage knowledge base documents
-    管理知识库文档
     """
     
     def __init__(
@@ -34,11 +29,10 @@ class KnowledgeService:
     ):
         """
         Initialize knowledge service
-        初始化知识库服务
         
         Args:
-            vector_store: Vector store instance / 向量存储实例
-            llm_client: LLM client for generating embeddings / 用于生成嵌入的LLM客户端
+            vector_store: Vector store instance 
+            llm_client: LLM client for generating embeddings 
         """
         self.vector_store = vector_store
         self.llm_client = llm_client
@@ -54,23 +48,22 @@ class KnowledgeService:
     ) -> Dict:
         """
         Upload and index a document
-        上传并索引文档
         
         Args:
-            file_path: Path to document file / 文档文件路径
-            metadata: Additional metadata / 附加元数据
-            chunk_size: Override default chunk size / 覆盖默认块大小
-            chunk_overlap: Override default overlap / 覆盖默认重叠
+            file_path: Path to document file
+            metadata: Additional metadata 
+            chunk_size: Override default chunk size
+            chunk_overlap: Override default overlap 
             
         Returns:
-            Result dictionary / 结果字典
+            Result dictionary
         """
         start_time = time.time()
         
         try:
             logger.info(f"Uploading document: {file_path}")
             
-            # Load and chunk document / 加载并分块文档
+            # Load and chunk document
             kwargs = {}
             if chunk_size:
                 kwargs['chunk_size'] = chunk_size
@@ -87,8 +80,8 @@ class KnowledgeService:
                     "message": "Failed to load document",
                     "num_chunks": 0
                 }
-            
-            # Generate embeddings / 生成嵌入
+        
+            # Generate embeddings
             logger.info(f"Generating embeddings for {len(documents)} chunks")
             vectors = []
             
@@ -96,7 +89,7 @@ class KnowledgeService:
                 vector = self.llm_client.get_embedding(doc.content)
                 vectors.append(vector)
             
-            # Add to vector store / 添加到向量存储
+            # Add to vector store 
             success = self.vector_store.add_documents(documents, vectors)
             
             duration = time.time() - start_time
@@ -137,21 +130,20 @@ class KnowledgeService:
     ) -> Dict:
         """
         Upload all documents from a directory
-        从目录上传所有文档
         
         Args:
-            directory_path: Path to directory / 目录路径
-            file_extensions: List of extensions to include / 要包含的扩展名列表
+            directory_path: Path to directory 
+            file_extensions: List of extensions to include
             
         Returns:
-            Result dictionary / 结果字典
+            Result dictionary
         """
         start_time = time.time()
         
         try:
             logger.info(f"Uploading directory: {directory_path}")
             
-            # Load all documents / 加载所有文档
+            # Load all documents 
             all_documents = load_directory(directory_path, file_extensions)
             
             if not all_documents:
@@ -162,7 +154,7 @@ class KnowledgeService:
                     "num_chunks": 0
                 }
             
-            # Generate embeddings / 生成嵌入
+            # Generate embeddings
             logger.info(f"Generating embeddings for {len(all_documents)} chunks")
             vectors = []
             
@@ -170,12 +162,12 @@ class KnowledgeService:
                 vector = self.llm_client.get_embedding(doc.content)
                 vectors.append(vector)
             
-            # Add to vector store / 添加到向量存储
+            # Add to vector store 
             success = self.vector_store.add_documents(all_documents, vectors)
             
             duration = time.time() - start_time
             
-            # Count unique source files / 计算唯一源文件数
+            # Count unique source files
             unique_sources = set(doc.metadata.get("source", "") for doc in all_documents)
             
             if success:
@@ -212,13 +204,12 @@ class KnowledgeService:
     def delete_document(self, doc_id: str) -> Dict:
         """
         Delete a document by ID
-        按ID删除文档
         
         Args:
-            doc_id: Document ID / 文档ID
+            doc_id: Document ID 
             
         Returns:
-            Result dictionary / 结果字典
+            Result dictionary
         """
         try:
             success = self.vector_store.delete_by_id(doc_id)
@@ -245,13 +236,12 @@ class KnowledgeService:
     def delete_by_source(self, source_name: str) -> Dict:
         """
         Delete all documents from a source file
-        删除来自源文件的所有文档
         
         Args:
-            source_name: Source file name / 源文件名
+            source_name: Source file name
             
         Returns:
-            Result dictionary / 结果字典
+            Result dictionary
         """
         try:
             success = self.vector_store.delete_by_metadata({"source": source_name})
@@ -278,29 +268,28 @@ class KnowledgeService:
     def list_documents(self, limit: int = 100) -> List[Dict]:
         """
         List all documents in the knowledge base
-        列出知识库中的所有文档
         
         Args:
-            limit: Maximum number of documents / 最大文档数量
+            limit: Maximum number of documents
             
         Returns:
-            List of document info dicts / 文档信息字典列表
+            List of document info dicts
         """
         try:
             documents = self.vector_store.list_all_documents(limit)
             
-            # Convert to info dicts / 转换为信息字典
+            # Convert to info dicts
             doc_list = []
             sources_seen = set()
             
             for doc in documents:
                 source = doc.metadata.get("source", "Unknown")
                 
-                # Group by source / 按来源分组
+                # Group by source
                 if source not in sources_seen:
                     sources_seen.add(source)
                     
-                    # Count chunks from this source / 计算此来源的块数
+                    # Count chunks from this source
                     chunk_count = sum(
                         1 for d in documents
                         if d.metadata.get("source") == source
@@ -323,10 +312,9 @@ class KnowledgeService:
     def get_collection_stats(self) -> Dict:
         """
         Get knowledge base statistics
-        获取知识库统计信息
         
         Returns:
-            Statistics dictionary / 统计字典
+            Statistics dictionary
         """
         try:
             info = self.vector_store.get_collection_info()
@@ -344,7 +332,7 @@ class KnowledgeService:
             return {}
 
 # ============================================================================
-# Convenience Functions / 便利函数
+# Convenience Functions
 # ============================================================================
 
 def create_knowledge_service(
@@ -353,19 +341,18 @@ def create_knowledge_service(
 ) -> KnowledgeService:
     """
     Create and return knowledge service instance
-    创建并返回知识库服务实例
     
     Args:
-        vector_store: Vector store instance / 向量存储实例
-        llm_client: LLM client instance / LLM客户端实例
+        vector_store: Vector store instance
+        llm_client: LLM client instance 
         
     Returns:
-        KnowledgeService instance / 知识库服务实例
+        KnowledgeService instance
     """
     return KnowledgeService(vector_store, llm_client)
 
 # ============================================================================
-# Example Usage / 使用示例
+# Example Usage 
 # ============================================================================
 
 if __name__ == "__main__":
@@ -373,19 +360,19 @@ if __name__ == "__main__":
     from llm_client import create_llm_client
     
     try:
-        # Initialize components / 初始化组件
+        # Initialize components
         vector_store = create_vector_store()
         llm_client = create_llm_client()
         knowledge_service = create_knowledge_service(vector_store, llm_client)
         
-        # Get stats / 获取统计
+        # Get stats
         stats = knowledge_service.get_collection_stats()
         print(f"Knowledge Base Statistics:")
         print(f"  Total documents: {stats.get('total_documents', 0)}")
         print(f"  Total chunks: {stats.get('total_chunks', 0)}")
         print(f"  Status: {stats.get('status', 'unknown')}\n")
         
-        # List documents / 列出文档
+        # List documents
         documents = knowledge_service.list_documents()
         print(f"Documents in knowledge base ({len(documents)}):")
         for doc in documents:
